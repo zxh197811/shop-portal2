@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <link rel="stylesheet" href="js/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/cart.css">
+    <link rel="icon" href="js/shop/assets/img/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="js/shop/css/webbase.css"/>
+    <link rel="stylesheet" type="text/css" href="js/shop/css/pages-JD-index.css"/>
+    <link rel="stylesheet" type="text/css" href="js/shop/css/widget-jquery.autocomplete.css"/>
+    <link rel="stylesheet" type="text/css" href="js/shop/css/widget-cartPanelView.css"/>
+    <title>商城首页</title>
+</head>
+<body>
+
+<div style="text-align: right">
+    <button onclick="location.href='cart.html'" type="button" class="btn btn-primary btn-sm"
+            style="background:#c81623;color:#fff">
+        <span class="glyphicon glyphicon-shopping-cart"></span>
+        我的购物车
+        <span id="cartTotalCount">0</span>
+    </button>
+    <a href="user-info.html" id="username"></a>,欢迎您登录飞狐商城!
+</div>
+<div id="nav-bottom">
+    <!--顶部-->
+    <div class="nav-top">
+        <!--头部-->
+        <div class="header">
+            <div class="py-container">
+                <div class="yui3-g NavList">
+                    <div class="yui3-u Left all-sort">
+                        <h4>全部商品分类</h4>
+                    </div>
+                    <div class="yui3-u Center navArea">
+                        <ul class="nav">
+                            <li class="f-item">服装城</li>
+                            <li class="f-item">美妆馆</li>
+                            <li class="f-item">品优超市</li>
+                            <li class="f-item">全球购</li>
+                            <li class="f-item">闪购</li>
+                            <li class="f-item">团购</li>
+                            <li class="f-item">有趣</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--列表-->
+<div class="sort">
+    <div class="py-container">
+        <div class="yui3-g SortList ">
+            <div class="yui3-u Left all-sort-list">
+                <div class="all-sort-list2">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="container">
+    <h1 style="color:#e1251b">热销商品</h1>
+    <div class="row" id="hotProductDiv">
+
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-success">
+                <div class="panel-heading">热销品牌</div>
+                <div class="panel-body" id="brandListDiv">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="container">
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-success">
+                <div class="panel-heading">商品列表</div>
+                <div class="panel-body" id="productListDiv">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<div id="productDiv" style="display: none;">
+    <div class="col-md-4">
+        <div class="thumbnail">
+            <img src="##mainImage##">
+            <div class="caption">
+                <h3>商品名:##produtName##</h3>
+                <p><b><font color="red">价格:##price##</font></b></p>
+                <p><a href="#" class="btn btn-primary" role="button">##produtName##</a> <a href="#"
+                                                                                           class="btn btn-default"
+                                                                                           role="button">Button</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="brandDiv" style="display: none;">
+    <div class="col-md-4">
+        <div class="thumbnail">
+            <img src="##mainImage##">
+            <div class="caption">
+                <h3>品牌名:##brandName##</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="productTemplateDiv" style="display: none">
+    <div class="col-md-2 product-info">
+        <div class="product-container">
+            <img src="#productImage#" class="product-image"/>
+            <p class="product-name">#productName#</p>
+            <div class="product-price">
+                <i>￥</i>
+                <span>#productPrice#</span>
+            </div>
+            <div class="product-operation">
+                <button type="button" onclick="addCartItem('#productId#')" class="btn btn-primary btn-xs">
+                    <span class="glyphicon glyphicon-shopping-cart"></span>
+                    加入购物车
+                </button>
+                <button class="btn btn-primary btn-xs">立即购买</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="js/jquery-3.3.1.js"></script>
+<script src="js/common.js"></script>
+<script src="js/bootstrap/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/shop/js/pages/index.js"></script>
+
+
+<script>
+
+    $(function () {
+        initCurrentLogin();
+        initCss();
+        initProduct();
+        initCategory();
+        initHotBrand();
+    });
+
+    function initCurrentLogin() {
+        //发起一个ajax请求调用获取当前登录会员信息的API接口
+        $.ajax({
+            url: "http://localhost:1111/member/getCurrentLoginMember",
+            dataType: "json",
+            success: function (result) {
+                if (result.code == 200) {
+                    $("#username").html(result.data.username);
+                    initCartTotalNumber();
+                } else {
+                    alert(result.message);
+                }
+            },
+            error: function () {
+                alert("获取会员信息失败!");
+            }
+        });
+    }
+
+    function initCartTotalNumber() {
+        $.ajax({
+            url: "http://localhost:1111/cart/getCartTotalCount",
+            dataType: "json",
+            success: function (result) {
+                if (result.code == 200) {
+                    $("#cartTotalCount").html(result.data);
+                } else {
+                    alert(result.message);
+                }
+            }
+        });
+    }
+
+    function addCartItem(productId) {
+        //发起一个ajax请求调用获取当前登录会员信息的API接口
+        $.ajax({
+            url: "http://localhost:1111/member/getCurrentLoginMember",
+            dataType: "json",
+            success: function (result) {
+                //如果用户已经登录
+                if (result.code == 200) {
+                    //发起一个ajax请求调用向购物车中添加商品的API接口
+                    addCartItem2(productId);
+                } else {//如果用户没有登录，则跳转到登录页面
+                    location.href = 'login.html';
+                }
+            }
+        });
+    }
+
+    function addCartItem2(productId) {
+        $.ajax({
+            url: "http://localhost:1111/cart/addCartItem",
+            data: {productId: productId},
+            dataType: "json",
+            success: function (result) {
+                if (result.code == 200) {
+                    $("#cartTotalCount").html(result.data);
+                } else {
+                    alert(result.message);
+                }
+            }
+        });
+    }
+
+    function initCategory() {
+        $.ajax({
+            url: "http://localhost:1111/category",
+            dataType: "json",
+            success: function (result) {
+                alert(result);
+
+                if (result.code == 200) {
+                    initCategory1(result.data, 1);
+                    initCss();
+                }
+            },
+            error: function () {
+            }
+        });
+    }
+
+    function initCategory1(categoryList, pid) {
+        var categoryHTML = "";
+        for (var i = 0; i < categoryList.length; i++) {
+            if (categoryList[i].pid == pid) {
+                categoryHTML += '<div class="item">';
+                categoryHTML += '<h3><a href="">' + categoryList[i].name + '</a></h3>';
+                categoryHTML += initCategory2(categoryList, categoryList[i].id);
+                categoryHTML += '</div>';
+            }
+        }
+        $(".all-sort-list2").html(categoryHTML);
+    }
+
+    function initCategory2(categoryList, pid) {
+        var categoryHTML = "";
+        categoryHTML += '<div class="item-list clearfix">';
+        categoryHTML += '<div class="subitem">';
+        for (var i = 0; i < categoryList.length; i++) {
+            if (categoryList[i].pid == pid) {
+                categoryHTML += '<dl class="fore1">';
+                categoryHTML += '<dt><a href="">' + categoryList[i].name + '</a></dt>';
+                categoryHTML += initCategory3(categoryList, categoryList[i].id);
+                categoryHTML += '</dl>';
+            }
+        }
+        categoryHTML += '</div></div>';
+        return categoryHTML;
+    }
+
+    function initCategory3(categoryList, pid) {
+        var categoryHTML = "<dd>";
+        for (var i = 0; i < categoryList.length; i++) {
+            if (categoryList[i].pid == pid) {
+                categoryHTML += '<em><a href="">' + categoryList[i].name + '</a></em>';
+            }
+        }
+        categoryHTML += '</dd>';
+        return categoryHTML;
+    }
+
+    function initProduct() {
+        //发起一个AJAX请求调用查询所有热销商品的接口
+        $.ajax({
+            url: "http://localhost:1111/product",
+            dataType: "json",
+            success: function (result) {
+                if (result.code == 200) {
+                    var hotProductDivHTML = "";
+                    for (var i = 0; i < result.data.length; i++) {
+                        var product = result.data[i];
+                        hotProductDivHTML += '<div class="col-md-2 product-info">';
+                        hotProductDivHTML += '<div class="product-container">';
+                        hotProductDivHTML += '<img src="' + product.filePath + '" class="product-image"/>';
+                        hotProductDivHTML += '<p class="product-name">' + product.name + '</p>';
+                        hotProductDivHTML += '<div class="product-price">';
+                        hotProductDivHTML += '<i>￥</i>';
+                        hotProductDivHTML += '<span>' + product.price + '</span>';
+                        hotProductDivHTML += '</div>';
+                        hotProductDivHTML += '<div class="product-operation">';
+                        hotProductDivHTML += '<button class="btn btn-primary btn-xs" onclick="addCartItem(\'' + product.id + '\')">';
+                        hotProductDivHTML += '<span class="glyphicon glyphicon-shopping-cart"></span>';
+                        hotProductDivHTML += '加入购物车</button>';
+                        hotProductDivHTML += '<button class="btn btn-primary btn-xs">立即购买</button>';
+                        hotProductDivHTML += '</div>';
+                        hotProductDivHTML += '</div>';
+                        hotProductDivHTML += '</div>';
+                    }
+                    $("#hotProductDiv").html(hotProductDivHTML);
+                }
+            }
+        });
+    }
+
+
+    function initHotBrand() {
+        //发起一个AJAX请求调用查询所有热销品牌的接口
+        $.ajax({
+            url: "http://localhost:1111/brand/hot",
+            dataType: "json",
+            success: function (result) {
+                if (result.code == 200) {
+                    var brandList = result.data;
+                    var brandHTML = "";
+                    for (var i = 0; i < brandList.length; i++) {
+                        brandHTML += '<div class="col-md-2 pro" style="height:300px;margin-bottom:10px;">';
+                        brandHTML += '<div style="border:1px solid #999;width:170px;height:200px;padding:5px;">';
+                        brandHTML += '<img src="http://localhost:8080/shop-admin' + brandList[i].filePath + '" width=150px; height:150px;/>';
+                        brandHTML += "<p style='font-size:14px;color:#666;height:48px;line-height:24px;word-break:break-all;overflow:hidden;text-overflow:ellipsis'>" + brandList[i].name + "</p>";
+                        brandHTML += '</div></div>';
+                    }
+
+                    $("#brandListDiv").html(brandHTML);
+                }
+            },
+            error: function () {
+
+            }
+        });
+    }
+
+
+    function initCss() {
+        $('.all-sort-list2 > .item').hover(function () {
+            //父类分类列表容器的高度
+            $(this).addClass('hover');
+            $(this).children('.item-list').css('display', 'block');
+        }, function () {
+            $(this).removeClass('hover');
+            $(this).children('.item-list').css('display', 'none');
+        });
+
+        $('.item > .item-list > .close').click(function () {
+            $(this).parent().parent().removeClass('hover');
+            $(this).parent().hide();
+        });
+    }
+
+
+</script>
+</body>
+</html>
